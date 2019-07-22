@@ -41,7 +41,7 @@ class AntaeusDal(private val db: Database) {
     fun fetchInvoicesByStatus(status: String): List<Invoice> {
         return transaction(db) {
             InvoiceTable
-                .selectAll( { InvoiceTable.status.eq(status) } )
+                .select { InvoiceTable.status like status }
                 .map { it.toInvoice() }
         }
     }
