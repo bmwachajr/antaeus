@@ -47,12 +47,12 @@ class AntaeusDal(private val db: Database) {
         }
     }
 
-    fun updateInvoiceStatus(id: Int) {
+    fun updateInvoiceStatus(id: Int, status: InvoiceStatus) {
         transaction(db) {
             // update the invoice status.
             InvoiceTable
                 .update( {InvoiceTable.id.eq(id)} ) {
-                    it[this.status] = InvoiceStatus.PAID.toString()
+                    it[this.status] = status.toString()
                 }
         }
     }

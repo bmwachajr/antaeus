@@ -5,6 +5,7 @@ import io.pleo.antaeus.core.exceptions.CurrencyMismatchException
 import io.pleo.antaeus.core.exceptions.NetworkException
 import io.pleo.antaeus.core.external.PaymentProvider
 import io.pleo.antaeus.data.AntaeusDal
+import io.pleo.antaeus.models.InvoiceStatus
 import io.pleo.antaeus.models.Invoice
 
 class BillingService(
@@ -12,17 +13,18 @@ class BillingService(
     private val dal: AntaeusDal
 ) {
    // TODO - Add code e.g. here
-   fun billAll(): List<Invoice> {
+   fun billAll(): String {
        val pendingInvoices = dal.fetchInvoicesByStatus("pending")
        
        pendingInvoices.forEach {
-           val chargeStatus = true
-           if (ç == true) {
-               dal.updateInvoiceStatus(it.id)
+           when(processPayment(it)) {
+               true -> { dal.updateInvoiceStatus(it.id, InvoiceStatus.PAID) }
+               false -> { dal.updateInvoiceStatus(it.id, InvoiceStatus.FAILED) }
+               else -> { dal.updateInvoiceStatus(it.id, InvoiceStatus.PENDING) }
            }
        }
 
-       return pendingInvoices
+       return("Invoices Billed")
    }
 
    fun processPayment(invoice: Invoice): Boolean {
@@ -38,8 +40,5 @@ class BillingService(
         catch (e: NetworkException) {
             throw NetworkException()
         } 
-        finally {
-            return false
-        }
    }
 }
