@@ -16,8 +16,9 @@ class BillingService(
        val pendingInvoices = dal.fetchInvoicesByStatus("pending")
        
        pendingInvoices.forEach {
-           val chargeStatus = processPayment(it)
-           if (chargeStatus == true) {
+           val chargeStatus = true
+           if (ç == true) {
+               dal.updateInvoiceStatus(it.id)
            }
        }
 
