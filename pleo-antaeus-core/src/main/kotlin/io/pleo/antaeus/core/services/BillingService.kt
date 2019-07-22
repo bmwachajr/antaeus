@@ -19,7 +19,7 @@ class BillingService(
        pendingInvoices.forEach {
            when(processPayment(it)) {
                true -> { dal.updateInvoiceStatus(it.id, InvoiceStatus.PAID) }
-               false -> { dal.updateInvoiceStatus(it.id, InvoiceStatus.FAILED) }
+               false -> { dal.updateInvoiceStatus(it.id, InvoiceStatus.UNPAID) }
                else -> { dal.updateInvoiceStatus(it.id, InvoiceStatus.PENDING) }
            }
        }
