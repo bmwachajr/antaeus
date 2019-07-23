@@ -47,7 +47,7 @@ class AntaeusDal(private val db: Database) {
         }
     }
 
-    fun updateInvoiceStatus(id: Int, status: InvoiceStatus) {
+    fun updateInvoiceStatus(id: Int, status: InvoiceStatus, comments: String) {
         transaction(db) {
             // update the invoice status.
             InvoiceTable
@@ -57,7 +57,7 @@ class AntaeusDal(private val db: Database) {
         }
     }
 
-    fun createInvoice(amount: Money, customer: Customer, status: InvoiceStatus = InvoiceStatus.PENDING): Invoice? {
+    fun createInvoice(amount: Money, customer: Customer, status: InvoiceStatus = InvoiceStatus.PENDING, comments: String): Invoice? {
         val id = transaction(db) {
             // Insert the invoice and returns its new id.
             InvoiceTable
