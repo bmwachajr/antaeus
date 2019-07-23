@@ -7,6 +7,9 @@ import io.pleo.antaeus.core.external.PaymentProvider
 import io.pleo.antaeus.data.AntaeusDal
 import io.pleo.antaeus.models.InvoiceStatus
 import io.pleo.antaeus.models.Invoice
+import mu.KotlinLogging
+
+private val logger = KotlinLogging.logger {}
 
 class BillingService(
     private val paymentProvider: PaymentProvider,
@@ -20,25 +23,28 @@ class BillingService(
            when(processPayment(it)) {
                true -> { dal.updateInvoiceStatus(it.id, InvoiceStatus.PAID) }
                false -> { dal.updateInvoiceStatus(it.id, InvoiceStatus.UNPAID) }
-               else -> { dal.updateInvoiceStatus(it.id, InvoiceStatus.PENDING) }
            }
        }
 
        return("Invoices Billed")
    }
 
-   fun processPayment(invoice: Invoice): Boolean {
+   fun processPayment(invoice: Invoice): Any {
        try {
             return paymentProvider.charge(invoice)
         }
         catch (e: CustomerNotFoundException) {
-            throw CustomerNotFoundException(invoice.customerId)
+            logger.error(e) { CustomerNotFoundException(invoice.customerId) }
+            return false
         }
         catch (e: CurrencyMismatchException) {
-            throw CurrencyMismatchException(invoice.id, invoice.customerId)
+            logger.error(e) { CurrencyMismatchException(invoice.id, invoice.customerId) }
+            return false
+
         }
         catch (e: NetworkException) {
-            throw NetworkException()
+            logger.error(e) { NetworkException() }
+            return "NetworkException"
         } 
    }
 }
