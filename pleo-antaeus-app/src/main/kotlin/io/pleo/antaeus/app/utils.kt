@@ -24,7 +24,8 @@ internal fun setupInitialData(dal: AntaeusDal) {
                     currency = customer.currency
                 ),
                 customer = customer,
-                status = if (it == 1) InvoiceStatus.PENDING else InvoiceStatus.PAID
+                status = if (it == 1) InvoiceStatus.PENDING else InvoiceStatus.PAID,
+                comments = "Successfully created"
             )
         }
     }

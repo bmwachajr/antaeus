@@ -20,14 +20,14 @@ class BillingServiceTest {
                 id = Random.nextInt(),
                 customerId = Random.nextInt(),
                 amount = Money(100.toBigDecimal(), Currency.USD),
-                status = InvoiceStatus.PENDING
+                status = InvoiceStatus.PENDING,
+                comments = "Successfully Created"
         )
     }
 
     private val dal = mockk<AntaeusDal> {
         every { fetchInvoicesByStatus("pending") } returns invoices
-        every { updateInvoiceStatus(any(), InvoiceStatus.PAID) } returns Unit
-        every { updateInvoiceStatus(any(), InvoiceStatus.UNPAID) } returns Unit
+        every { updateInvoiceStatus(any(), any(), any()) } returns Unit
     }
 
     @Test
@@ -37,7 +37,7 @@ class BillingServiceTest {
         val results = billingService.billAll()
         
         verify(exactly = 7) {
-            dal.updateInvoiceStatus(any(), InvoiceStatus.PAID)
+            dal.updateInvoiceStatus(any(), InvoiceStatus.PAID, "Successfully Paid")
         }
     }
 
@@ -48,18 +48,18 @@ class BillingServiceTest {
         val results = billingService.billAll()
 
         verify(exactly = 7) {
-            dal.updateInvoiceStatus(any(), InvoiceStatus.UNPAID)
+            dal.updateInvoiceStatus(any(), InvoiceStatus.UNPAID, "Customer Balance Low")
         }
     }
 
     @Test
-    fun `will doesnt update invoice status if an NetworkException is encountered`() {
+    fun `doesnt update invoice status if an NetworkException is encountered`() {
         val paymentProvider = mockk<PaymentProvider> { every { charge(any()) } throws NetworkException() }
         val billingService = BillingService(paymentProvider, dal)
         val result = billingService.billAll()
 
-        verify(exactly = 0) {
-            dal.updateInvoiceStatus(any(), any())
+        verify(exactly = 7) {
+            dal.updateInvoiceStatus(any(), InvoiceStatus.PENDING, "Network Error")
         }
     }
 
@@ -70,7 +70,7 @@ class BillingServiceTest {
         val result = billingService.billAll()
 
         verify(exactly = 7) {
-            dal.updateInvoiceStatus(any(), InvoiceStatus.UNPAID)
+            dal.updateInvoiceStatus(any(), InvoiceStatus.UNPAID, "Customer Not Found")
         }
     }
 
@@ -81,7 +81,7 @@ class BillingServiceTest {
         val result = billingService.billAll()
 
         verify(exactly = 7) {
-            dal.updateInvoiceStatus(any(), InvoiceStatus.UNPAID)
+            dal.updateInvoiceStatus(any(), InvoiceStatus.UNPAID, "Currency Mis-match")
         }
     }
 

@@ -21,8 +21,8 @@ class BillingService(
        
        pendingInvoices.forEach {
            when(processPayment(it)) {
-               true -> { dal.updateInvoiceStatus(it.id, InvoiceStatus.PAID) }
-               false -> { dal.updateInvoiceStatus(it.id, InvoiceStatus.UNPAID) }
+               true -> { dal.updateInvoiceStatus(it.id, InvoiceStatus.PAID, "Successfully Paid") }
+               false -> { dal.updateInvoiceStatus(it.id, InvoiceStatus.UNPAID, "Customer Balance Low") }
            }
        }
 
@@ -35,16 +35,16 @@ class BillingService(
         }
         catch (e: CustomerNotFoundException) {
             logger.error(e) { CustomerNotFoundException(invoice.customerId) }
-            return false
+            return dal.updateInvoiceStatus(invoice.id, InvoiceStatus.UNPAID, "Customer Not Found")
         }
         catch (e: CurrencyMismatchException) {
             logger.error(e) { CurrencyMismatchException(invoice.id, invoice.customerId) }
-            return false
+            return dal.updateInvoiceStatus(invoice.id, InvoiceStatus.UNPAID, "Currency Mis-match")
 
         }
         catch (e: NetworkException) {
             logger.error(e) { NetworkException() }
-            return "NetworkException"
+            return dal.updateInvoiceStatus(invoice.id, InvoiceStatus.PENDING, "Network Error")
         } 
    }
 }
