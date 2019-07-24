@@ -10,7 +10,6 @@ import io.pleo.antaeus.core.services.InvoiceService
 
 import io.pleo.antaeus.data.AntaeusDal
 import io.pleo.antaeus.models.*
-import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Assertions.assertThrows
 import org.junit.jupiter.api.Test
 import kotlin.random.Random
