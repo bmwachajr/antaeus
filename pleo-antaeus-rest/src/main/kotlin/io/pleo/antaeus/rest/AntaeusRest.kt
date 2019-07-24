@@ -88,6 +88,11 @@ class AntaeusRest (
                            it.json(billingService.billAll())
                        }
 
+                       // URL: /rest/v1/billing/{:invoice_id}
+                       get(":invoice_id") {
+                           it.json(billingService.bill(it.pathParam("invoice_id").toInt()))
+                       }
+
                    }
                }
            }

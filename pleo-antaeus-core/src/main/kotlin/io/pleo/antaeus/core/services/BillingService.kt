@@ -7,12 +7,14 @@ import io.pleo.antaeus.core.external.PaymentProvider
 import io.pleo.antaeus.data.AntaeusDal
 import io.pleo.antaeus.models.InvoiceStatus
 import io.pleo.antaeus.models.Invoice
+import io.pleo.antaeus.core.services.InvoiceService
 import mu.KotlinLogging
 
 private val logger = KotlinLogging.logger {}
 
 class BillingService(
     private val paymentProvider: PaymentProvider,
+    private val invoiceService: InvoiceService,
     private val dal: AntaeusDal
 ) {
    // TODO - Add code e.g. here
@@ -27,6 +29,23 @@ class BillingService(
        }
 
        return("Invoices Billed")
+   }
+
+   fun bill(id: Int): Invoice {
+       val invoice = invoiceService.fetch(id)
+
+       if (invoice.status != InvoiceStatus.PAID) {
+           processInvoice(invoice)
+       }
+
+       return invoiceService.fetch(id)
+   }
+
+   fun processInvoice(invoice: Invoice) {
+       when(processPayment(invoice)) {
+            true -> { dal.updateInvoiceStatus(invoice.id, InvoiceStatus.PAID, "Successfully Paid") }
+            false -> { dal.updateInvoiceStatus(invoice.id, InvoiceStatus.UNPAID, "Customer Balance Low") }
+        }
    }
 
    fun processPayment(invoice: Invoice): Any {
