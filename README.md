@@ -61,8 +61,8 @@ Implemented as an api path+endpoint so that it can be triggered. There is no men
 ### Testing
 Add a [BillingServiceTest](https://github.com/bmwachajr/antaeus/pull/3)
 
-# Time spent
-I am new to kotlin. I spent a `week` leveling up on kotlin. An experimenting with the apps javalin framework.
+### Time spent
+I spent a `week` leveling up on kotlin and experimenting with the apps javelin framework.
 The actually challenge took me approx `3 hours a day` , `3 days`. Total approximately `9hours`
 
 [Project Board](https://github.com/bmwachajr/antaeus/projects/1)
