@@ -14,6 +14,7 @@ import io.pleo.antaeus.models.InvoiceStatus
 import io.pleo.antaeus.models.Money
 import org.jetbrains.exposed.sql.Database
 import org.jetbrains.exposed.sql.insert
+import org.jetbrains.exposed.sql.update
 import org.jetbrains.exposed.sql.select
 import org.jetbrains.exposed.sql.selectAll
 import org.jetbrains.exposed.sql.transactions.transaction
@@ -38,7 +39,26 @@ class AntaeusDal(private val db: Database) {
         }
     }
 
-    fun createInvoice(amount: Money, customer: Customer, status: InvoiceStatus = InvoiceStatus.PENDING): Invoice? {
+    fun fetchInvoicesByStatus(status: String): List<Invoice> {
+        return transaction(db) {
+            InvoiceTable
+                .select { InvoiceTable.status like status }
+                .map { it.toInvoice() }
+        }
+    }
+
+    fun updateInvoiceStatus(id: Int, status: InvoiceStatus, comments: String) {
+        transaction(db) {
+            // update the invoice status.
+            InvoiceTable
+                .update( {InvoiceTable.id.eq(id)} ) {
+                    it[this.status] = status.toString()
+                    it[this.comments] = comments
+                }
+        }
+    }
+
+    fun createInvoice(amount: Money, customer: Customer, status: InvoiceStatus = InvoiceStatus.PENDING, comments: String): Invoice? {
         val id = transaction(db) {
             // Insert the invoice and returns its new id.
             InvoiceTable
@@ -47,6 +67,7 @@ class AntaeusDal(private val db: Database) {
                     it[this.currency] = amount.currency.toString()
                     it[this.status] = status.toString()
                     it[this.customerId] = customer.id
+                    it[this.comments] = comments
                 } get InvoiceTable.id
         }
 
